@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Inventor AI CAD Studio</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="logo">IA</div><div><strong>Inventor AI</strong><span>CAD Studio</span></div></div>
+      <nav>
+        <button class="nav active" data-page="generate">✦ Generate Model</button>
+        <button class="nav" data-page="drawing">⌁ Auto Drawing</button>
+        <button class="nav" data-page="jobs">◫ Jobs</button>
+      </nav>
+      <div class="sidebar-note">Built for Autodesk Inventor automation, STEP exchange, and professional drawing documentation.</div>
+    </aside>
+
+    <main>
+      <header>
+        <div><h1>AI CAD Workspace</h1><p>Describe it, generate it, document it.</p></div>
+        <div class="status"><span class="dot"></span><span id="apiStatus">Checking backend…</span></div>
+      </header>
+
+      <div class="warning" style="margin:0 0 20px"><b>GitHub Pages edition:</b> This standalone website saves model and drawing requests in your browser and downloads JSON specifications. It does not generate Inventor/STEP files or analyze CAD geometry until a CAD automation backend is connected.</div>
+      <section id="generate" class="page active">
+        <div class="grid two">
+          <div class="card">
+            <h2>Create a 3D model</h2>
+            <p class="muted">Describe the part or assembly in normal language. Include dimensions whenever you know them.</p>
+            <label>Model request</label>
+            <textarea id="prompt" rows="10" placeholder="Example: Create a 10 in × 6 in × 0.125 in aluminum mounting plate. Add four Ø0.375 in corner holes, 0.75 in from each edge, and a centered 4 in × 2 in rectangular cutout with 0.25 in corner radii."></textarea>
+            <div class="form-grid">
+              <div><label>Units</label><select id="units"><option>Inch</option><option>Millimeter</option></select></div>
+              <div><label>Model type</label><select id="modelType"><option>Part (.ipt)</option><option>Assembly (.iam)</option></select></div>
+              <div><label>Material</label><input id="material" value="Aluminum 6061-T6" /></div>
+              <div><label>Drawing standard</label><select id="standard"><option>ASME Y14.5</option><option>ISO</option></select></div>
+            </div>
+            <div class="check-row">
+              <label><input type="checkbox" id="step" checked /> STEP</label>
+              <label><input type="checkbox" id="inventor" checked /> Inventor</label>
+              <label><input type="checkbox" id="drawing" checked /> Drawing + PDF</label>
+            </div>
+            <button class="primary" id="generateBtn">Save Model Request</button>
+          </div>
+
+          <div class="card preview-card">
+            <div class="preview-head"><h2>3D Preview</h2><span class="badge">Illustrative Preview</span></div>
+            <div class="viewer" id="viewer">
+              <div class="axis"><span class="x">X</span><span class="y">Y</span><span class="z">Z</span></div>
+              <div class="part-demo"><div class="hole h1"></div><div class="hole h2"></div><div class="hole h3"></div><div class="hole h4"></div><div class="cutout"></div></div>
+              <p>Illustration only — actual CAD preview requires a connected CAD service.</p>
+            </div>
+            <div class="mini-stats"><div><b>Parametric</b><span>Editable features</span></div><div><b>Manufacturing</b><span>Drawing-aware</span></div><div><b>Export</b><span>IPT / IAM / STEP</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="drawing" class="page">
+        <div class="grid two">
+          <div class="card">
+            <h2>Automatic engineering drawing</h2>
+            <p class="muted">Upload a STEP or Inventor model. The drawing engine will inspect geometry, choose views, add dimensions/callouts, and prepare a drawing package.</p>
+            <div class="drop" id="dropZone">
+              <input type="file" id="cadFile" accept=".step,.stp,.ipt,.iam" />
+              <div class="upload-icon">⇧</div><b>Drop CAD file here</b><span>STEP, STP, IPT, IAM</span>
+            </div>
+            <div class="form-grid">
+              <div><label>Sheet size</label><select id="sheet"><option>ANSI B (11×17)</option><option>ANSI A (8.5×11)</option><option>ANSI C (17×22)</option><option>A3</option><option>A4</option></select></div>
+              <div><label>Dimension style</label><select id="dimStyle"><option>Baseline + ordinate where useful</option><option>Mostly baseline</option><option>Mostly ordinate</option></select></div>
+              <div><label>Tolerance default</label><input id="tol" value="Per title block unless specified" /></div>
+              <div><label>Output</label><select id="drawingOutput"><option>IDW + PDF</option><option>DWG + PDF</option><option>IDW + DWG + PDF</option></select></div>
+            </div>
+            <div class="check-row">
+              <label><input type="checkbox" id="holeNotes" checked /> Hole/thread notes</label>
+              <label><input type="checkbox" id="centerMarks" checked /> Center marks</label>
+              <label><input type="checkbox" id="gdt" checked /> Datum/GD&T suggestions</label>
+            </div>
+            <button class="primary" id="analyzeBtn">Save Drawing Request</button>
+          </div>
+
+          <div class="card">
+            <h2>Drawing intelligence</h2>
+            <div class="feature-list">
+              <div><span>01</span><p><b>Geometry recognition</b>Detects holes, slots, pockets, bosses, chamfers, fillets, patterns, and overall envelopes.</p></div>
+              <div><span>02</span><p><b>View selection</b>Chooses front/top/right, sections, details, and isometric views based on feature visibility.</p></div>
+              <div><span>03</span><p><b>Manufacturing dimensions</b>Prioritizes functional dimensions while avoiding duplicates and over-dimensioning.</p></div>
+              <div><span>04</span><p><b>Callouts</b>Creates hole/thread, radius, diameter, chamfer, pattern, and material notes.</p></div>
+              <div><span>05</span><p><b>Standards check</b>Applies title-block, units, precision, dimension style, and drafting rules.</p></div>
+            </div>
+            <div class="warning"><b>Engineering review remains required.</b> Automatic GD&T and tolerances need design-function context. The app can suggest them, but it should flag assumptions for approval instead of silently inventing critical requirements.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="jobs" class="page">
+        <div class="card"><div class="jobs-head"><div><h2>CAD Jobs</h2><p class="muted">Locally saved requests. Actual CAD processing requires an external backend.</p></div><button class="secondary" id="refreshJobs">Refresh</button></div><div id="jobsTable"></div></div>
+      </section>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
